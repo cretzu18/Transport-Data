@@ -1,0 +1,172 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model Proiect_MDS.Models.StationStatisticsViewModel
+
+@* <h2>Network Statistics</h2> *@
+
+@* <ul> *@
+@*     <li><strong>Total Stations:</strong> @Model.TotalStations</li> *@
+@*     <li><strong>Average Congestion:</strong> @Model.AverageCongestion</li> *@
+@* </ul> *@
+
+@* <h3>Congestion Level Distribution</h3> *@
+@* <table class="table table-bordered"> *@
+@*     <thead> *@
+@*         <tr> *@
+@*             <th>Congestion Level</th> *@
+@*             <th>Number of Stations</th> *@
+@*         </tr> *@
+@*     </thead> *@
+@*     <tbody> *@
+@*         @foreach (var kvp in Model.Distribution.OrderBy(kvp => kvp.Key)) *@
+@*         { *@
+@*             <tr> *@
+@*                 <td>@kvp.Key</td> *@
+@*                 <td>@kvp.Value</td> *@
+@*             </tr> *@
+@*         } *@
+@*     </tbody> *@
+@* </table> *@
+
+@* <canvas id="congestionChart" width="400" height="200"></canvas> *@
+
+@* <script> *@
+@*     const labels = @Html.Raw(Json.Serialize(Model.Distribution.Keys.OrderBy(k => k))); *@
+@*     const data = @Html.Raw(Json.Serialize(Model.Distribution.Values)); *@
+
+@*     const ctx = document.getElementById('congestionChart').getContext('2d'); *@
+@*     new Chart(ctx, { *@
+@*         type: 'bar', *@
+@*         data: { *@
+@*             labels: labels, *@
+@*             datasets: [{ *@
+@*                 label: 'Number of Stations per Congestion Level', *@
+@*                 data: data, *@
+@*                 backgroundColor: 'rgba(54, 162, 235, 0.6)', *@
+@*                 borderColor: 'rgba(54, 162, 235, 1)', *@
+@*                 borderWidth: 1 *@
+@*             }] *@
+@*         }, *@
+@*         options: { *@
+@*             scales: { *@
+@*                 y: { beginAtZero: true, precision: 0 } *@
+@*             } *@
+@*         } *@
+@*     }); *@
+@* </script> *@
+
+@* <button class="btn btn-success" onclick="exportToPDF()">Export as PDF</button> *@
+@* <script> *@
+@*     async function exportToPDF() { *@
+@*         const { jsPDF } = window.jspdf; *@
+
+@*         const doc = new jsPDF(); *@
+@*         const container = document.body; *@
+
+@*         await html2canvas(container).then(canvas => { *@
+@*             const imgData = canvas.toDataURL('image/png'); *@
+@*             const imgProps = doc.getImageProperties(imgData); *@
+@*             const pdfWidth = doc.internal.pageSize.getWidth(); *@
+@*             const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width; *@
+
+@*             doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight); *@
+@*             doc.save("station-statistics.pdf"); *@
+@*         }); *@
+@*     } *@
+@* </script> *@
+
+@* <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back</a> *@
+
+<h2>Station Congestion Statistics</h2>
+
+<div class="mb-3">
+    <label for="chartType">Select chart type:</label>
+    <select id="chartType" class="form-select" onchange="updateChart()">
+        <option value="bar">Bar</option>
+        <option value="line">Line</option>
+        <option value="pie">Pie</option>
+        <option value="doughnut">Doughnut</option>
+    </select>
+</div>
+
+<div id="chartContainer" style="width: 100%; max-width: 600px;">
+    <canvas id="congestionChart"></canvas>
+</div>
+
+<button class="btn btn-success mt-3" onclick="exportChart()">Export Chart as PDF</button>
+
+<script>
+    const labels = @Html.Raw(Json.Serialize(Model.Distribution.Keys.OrderBy(k => k)));
+    const dataValues = @Html.Raw(Json.Serialize(Model.Distribution.Values));
+
+    let chart;
+    const ctx = document.getElementById('congestionChart').getContext('2d');
+
+    function renderChart(type) {
+        if (chart) {
+            chart.destroy();
+        }
+
+        chart = new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Number of stations',
+                    data: dataValues,
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(153, 102, 255, 0.6)',
+                        'rgba(255, 205, 86, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(201, 203, 207, 0.6)',
+                        'rgba(0, 128, 0, 0.6)',
+                        'rgba(128, 0, 128, 0.6)',
+                        'rgba(255, 0, 0, 0.6)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: type !== 'bar' && type !== 'line'
+                    }
+                },
+                scales: type === 'bar' || type === 'line' ? {
+                    y: {
+                        beginAtZero: true
+                    }
+                } : {}
+            }
+        });
+    }
+
+    function updateChart() {
+        const selectedType = document.getElementById('chartType').value;
+        renderChart(selectedType);
+    }
+
+    async function exportChart() {
+        const { jsPDF } = window.jspdf;
+
+        const chartCanvas = document.getElementById('congestionChart');
+        await html2canvas(chartCanvas).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const doc = new jsPDF();
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            doc.addImage(imgData, 'PNG', 0, 20, pdfWidth, pdfHeight);
+            doc.save("congestion-chart.pdf");
+        });
+    }
+
+    renderChart('bar');
+</script>

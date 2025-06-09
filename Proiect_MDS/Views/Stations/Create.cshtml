@@ -1,0 +1,70 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model Proiect_MDS.Models.Station
+
+<h2>Add Station</h2>
+
+<form asp-action="Create" method="post">
+
+    @Html.AntiForgeryToken()
+    <div>
+        @Html.LabelFor(m => m.Name)
+        @Html.TextBoxFor(m => m.Name)
+        @Html.ValidationMessageFor(m => m.Name)
+    </div>
+
+    <div>
+        <label>Latitude</label>
+        <input asp-for="Latitude" id="latitude" readonly />
+    </div>
+
+    <div>
+        <label>Longitude</label>
+        <input asp-for="Longitude" id="longitude" readonly />
+    </div>
+
+
+    <div>
+        @Html.LabelFor(m => m.CongestionLevel)
+        @Html.TextBoxFor(m => m.CongestionLevel)
+        @Html.ValidationMessageFor(m => m.CongestionLevel)
+    </div>
+
+    <div id="map" style="height: 400px;"></div>
+
+    <button type="submit">Save</button>
+    <a href="@Url.Action("Index", "Stations")" class="btn btn-secondary">Back</a>
+</form>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([44.4268, 26.1025], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        var marker;
+
+        function onMapClick(e) {
+            var lat = e.latlng.lat.toFixed(6);
+            var lng = e.latlng.lng.toFixed(6);
+
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            marker = L.marker([lat, lng]).addTo(map);
+
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+        }
+
+        map.on('click', onMapClick);
+    </script>

@@ -1,0 +1,102 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model List<Proiect_MDS.Models.Station>
+
+<div class="input-group mb-3">
+    <input type="text" id="stationSearch" class="form-control" list="stationSuggestions" placeholder="Search for a station...">
+    <datalist id="stationSuggestions"></datalist>
+    <button class="btn btn-primary" type="button" onclick="searchStation()">Search</button>
+</div>
+<div id="searchResult" class="text-danger mb-2"></div>
+
+
+<div id="map" style="height: 800px;"></div>
+<script>
+    const stations = @Html.Raw(Json.Serialize(Model));
+</script>
+<a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back</a>
+
+<script>
+    const map = L.map('map').setView([44.4268, 26.1025], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    function getColor(level) {
+        if (level >= 8) return 'red';
+        if (level >= 5) return 'orange';
+        return 'green';
+    }
+
+    const stationMarkers = [];
+    const stationNames = stations.map(s => s.name);
+
+    stations.forEach(station => {
+        const color = getColor(station.congestionLevel);
+
+        const marker = L.circleMarker([station.latitude, station.longitude], {
+            radius: 10,
+            fillColor: color,
+            color: '#000',
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+        })
+        .bindPopup(`<b>${station.name}</b><br>Congestion level: ${station.congestionLevel}`)
+        .addTo(map);
+
+        stationMarkers.push({
+            name: station.name,
+            lat: station.latitude,
+            lng: station.longitude,
+            congestion: station.congestionLevel,
+            marker: marker
+        });
+    });
+
+        function searchStation() {
+        const term = document.getElementById("stationSearch").value.trim().toLowerCase();
+        const resultDiv = document.getElementById("searchResult");
+        resultDiv.innerText = "";
+
+        if (!term) {
+            resultDiv.innerText = "Please enter a station name.";
+            return;
+        }
+
+        const match = stationMarkers.find(s => s.name.toLowerCase().includes(term));
+
+        if (match) {
+            map.setView([match.lat, match.lng], 15);
+            match.marker.openPopup();
+
+            match.marker.setStyle({ fillColor: 'blue' });
+            setTimeout(() => {
+                match.marker.setStyle({ fillColor: getColor(match.congestion) });
+            }, 3000);
+        } else {
+            resultDiv.innerText = "Station not found.";
+        }
+    }
+
+        document.getElementById("stationSearch").addEventListener("input", function () {
+        const input = this.value.toLowerCase();
+        const datalist = document.getElementById("stationSuggestions");
+
+        datalist.innerHTML = "";
+
+        if (input.length === 0) return;
+
+        const filtered = stationNames.filter(name => name.toLowerCase().includes(input));
+
+        filtered.forEach(name => {
+            const option = document.createElement("option");
+            option.value = name;
+            datalist.appendChild(option);
+        });
+    });
+</script>

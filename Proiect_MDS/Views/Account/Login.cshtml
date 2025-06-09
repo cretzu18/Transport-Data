@@ -1,0 +1,26 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model Proiect_MDS.Models.LoginViewModel
+
+<form asp-action="Login" method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Parola"></label>
+        <input asp-for="Parola" type="password" class="form-control" />
+        <span asp-validation-for="Parola" class="text-danger"></span>
+    </div>
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <button type="submit" class="btn btn-primary">Login</button>
+    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back</a>
+</form>
+
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>

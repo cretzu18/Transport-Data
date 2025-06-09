@@ -1,0 +1,33 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model Proiect_MDS.Models.Utilizator
+
+@{
+    ViewData["Title"] = "Confirm Delete User";
+}
+
+<h2>Confirm Delete</h2>
+
+<div>
+    <h4>Are you sure you want to delete this user?</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Nume</dt>
+        <dd class="col-sm-10">@Model.Nume</dd>
+
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+
+        <dt class="col-sm-2">Rol</dt>
+        <dd class="col-sm-10">@Model.Rol</dd>
+    </dl>
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

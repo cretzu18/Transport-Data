@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+
+    var userEmail = Context.Session.GetString("UserEmail");
+}
+
+<div class="text-center">
+    <h1 class="display-4">Transport Data</h1>
+    <h2>@ViewBag.Message</h2>
+
+    <div class="mt-4">
+        @if (string.IsNullOrEmpty(userEmail))
+        {
+            <a class="btn btn-primary" href="@Url.Action("Login", "Account")">Login</a>
+            <a class="btn btn-secondary" href="@Url.Action("Register", "Account")">Register</a>
+        }
+        else
+        {
+            <form method="post" asp-controller="Account" asp-action="Logout">
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
+        }
+    </div>
+
+    @{
+        var userRole = Context.Session.GetString("UserRole");
+    }
+
+    @if (userRole == "Admin")
+    {
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-primary">See all users</a>
+    }
+
+    @if (userRole == "Researcher")
+    {
+        <a href="@Url.Action("Index", "Stations")" class="btn btn-primary">Edit data</a>
+    }
+</div>

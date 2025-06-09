@@ -1,0 +1,40 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model Proiect_MDS.Models.Station
+
+<h2>Edit Station Congestion Level</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" readonly />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Latitude"></label>
+        <input asp-for="Latitude" class="form-control" readonly />
+        <span asp-validation-for="Latitude" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Longitude"></label>
+        <input asp-for="Longitude" class="form-control" readonly />
+        <span asp-validation-for="Longitude" class="text-danger"></span>
+    </div>
+
+
+    <div class="form-group">
+        <label asp-for="CongestionLevel"></label>
+        <input asp-for="CongestionLevel" class="form-control" />
+        <span asp-validation-for="CongestionLevel" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
